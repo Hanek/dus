@@ -252,7 +252,7 @@ TEST(Sequence, Pod)
 }
 
 
-TEST(Sequence, Pod)
+TEST(Sequence, String)
 {
 
 }

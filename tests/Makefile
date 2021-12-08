@@ -1,4 +1,4 @@
-HOME     = ../src/
+HOME     = ../buffer/
 BINARIES = ./
 
 SOURCES = \
@@ -6,7 +6,7 @@ SOURCES = \
 	$(HOME)buffer.cpp
 
 OBJECTS = $(SOURCES:%.cpp=%.o)
-CXX = g++ -std=c++17
+CXX = g++ -std=c++11
 
 INCLUDES = -I$(HOME)
 
