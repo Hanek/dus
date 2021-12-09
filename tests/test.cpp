@@ -1,4 +1,5 @@
 #include <vector>
+#include <random>
 #include <gtest/gtest.h>
 
 #include "buffer.hpp"
@@ -246,16 +247,95 @@ TEST(Allocation, String)
 }
 
 
-TEST(Sequence, Pod)
+class io
+{
+private:
+    std::vector<char> buffer_;
+    char* pos_;
+    int reduction_;
+    std::default_random_engine rnd_;
+
+public:
+
+    io(int size)
+        : buffer_(size)
+        , pos_(buffer_.data())
+        , reduction_(10)
+        , rnd_(std::random_device{}())
+    {}
+
+    void reset() { pos_ = buffer_.data(); }
+
+    uint32_t read(void* buffer, int length)
+    {
+        int nbytes = rnd_() % (buffer_.size() / reduction_);
+        if (nbytes > length) { nbytes = length; }
+
+        memcpy(buffer, pos_, nbytes);
+
+        pos_ += nbytes;
+
+        return nbytes;
+    }
+
+    uint32_t write(const char* buffer, int length)
+    {
+        int nbytes = rnd_() % (buffer_.size() / reduction_);
+        if (nbytes > length) { nbytes = length; }
+
+        memcpy(pos_, buffer, nbytes);
+
+        pos_ += nbytes;
+
+        return nbytes;
+    }
+};
+
+
+
+TEST(IO, ReadWrite)
 {
     dus::buffer a;
+    dus::buffer b;
+    int size = 4096;
+
+    io socket(size);
+
+    /* fill the buffer with some values */
+    for (int i = 0; i < size / (int)(sizeof(int)); i++) { a.serialize<int>(i); }
+
+    a.reset();
+    a.expect(size);
+
+    /* write to socket in non-blocking manner */
+    while (a.get_expected())
+    {
+        int count = socket.write(a.get_position(), a.get_expected());
+        a.advance(count);
+    }
+
+
+    socket.reset();
+    b.expect(size);
+
+    /* read from socket in non-blocking manner */
+    while (b.get_expected())
+    {
+        int count = socket.read(b.get_position(), b.get_expected());
+        b.advance(count);
+    }
+
+    b.reset();
+
+    for (int i = 0; i < size / (int)(sizeof(int)); i++)
+    {
+        int val;
+        b.deserialize<int>(val);
+
+        EXPECT_EQ(i, val);
+    }
 }
 
-
-TEST(Sequence, String)
-{
-
-}
 
 
 int main(int argc, char **argv)

@@ -1,23 +1,20 @@
 # DUS #
 
-
-==========================================
-
-dus is a set of data structures written in educational purposes.
+DUS is a set of data structures written in educational purposes.
 
 
-### Available data structures ###
+### Data structures ###
 
-* plain buffer
+* buffer
 * linked list
 * tree
 
-### Compilers ###
+### Operating Systems ###
 
-* g++ with C++ 11 support
+Linux, g++ with C++ 11 support.
 
 
 ### Tests ###
 
-There is a test folder containing various unit tests, which require [GoogleTest](https://github.com/google/googletest) 
+There are some unit tests relied on [GoogleTest](https://github.com/google/googletest) 
 
