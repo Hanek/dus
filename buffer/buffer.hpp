@@ -9,12 +9,13 @@
 namespace dus
 {
 
-/* Simple buffer to hold POD, c-string and binary binary data */
+/* Simple buffer to hold POD, c-strings and binary data.
+ * Used to pack and unpack data, memory allocation is done internally, no multi-threading support */
 class buffer
 {
 public:
 
-    /* Constructs empty buffer of default size */ 
+    /* Constructs an empty buffer of the default size */ 
     buffer();
 
     ~buffer();
@@ -48,16 +49,27 @@ public:
 
     uint32_t default_buffer_size() const { return default_buffer_size_; }
 
-    /* Used to set expected number of bytes when data being read sequentially.
+    /* Used to set expected number of bytes when dealing with non-blocking IO
      * Read available data, advance buffer by amount of bytes supplied.  
      * Consider the following use case:
      *   
      *   length = read()
      *   buffer.expect(length)
+     *   
+     *   while(poll()) {}
      *
-     *   while(buffer.get_expected())
-     *     count = read(buffer.get_position())
-     *     buffer.advance(count) */
+     *   
+     *   bool poll()
+     *   {
+     *      count = read(buffer.get_position(), buffer.get_expected())
+     *      buffer.advance(count) 
+     *      
+     *          if(!buffer.get_expected()) 
+     *          {   // expected amount of bytes received
+     *              return true;
+     *          }
+     *      return false;
+     *    } */
     void expect(uint32_t);
 
     /* Advance position by requested amount of bytes */
