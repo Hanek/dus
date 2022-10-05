@@ -2,7 +2,7 @@
 #include <random>
 #include <gtest/gtest.h>
 
-#include "buffer.hpp"
+#include "../buffer/buffer.hpp"
 
 
 

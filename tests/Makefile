@@ -1,28 +1,25 @@
-HOME     = ../buffer/
-BINARIES = ./
-
-SOURCES = \
-	test.cpp\
-	$(HOME)buffer.cpp
-
-OBJECTS = $(SOURCES:%.cpp=%.o)
-CXX = g++ -std=c++11
-
-INCLUDES = -I$(HOME)
-
+CXX      = g++ -std=c++11
 CXXFLAGS = -Wall -Wextra
+LDFLAGS  = `pkg-config --libs --cflags gtest`
+GTEST    = /usr/src/gtest/lib/libgtest.a
 
-LDFLAGS = `pkg-config --libs --cflags gtest`
 
-GTEST = /usr/src/gtest/lib/libgtest.a
+all : buffer-tests list-tests
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
+buffer-tests : buffer.o buffer_tests.o
+	$(CXX) -o buffer-tests buffer.o buffer_tests.o $(LDFLAGS) $(GTEST)
 
-default: tests
+list-tests : list_tests.o
+	$(CXX) -o list-tests list_tests.o $(LDFLAGS) $(GTEST)
 
-tests: $(OBJECTS)
-	$(CXX) -o $(BINARIES)$@ $(OBJECTS) $(LDFLAGS) $(GTEST)
+buffer.o : ../buffer/buffer.cpp ../buffer/buffer.hpp
+	$(CXX) $(CXXFLAGS) -c ../buffer/buffer.cpp 
 
-clean:
-	/bin/rm -f $(OBJECTS) $(BINARIES)tests
+buffer_tests.o : buffer_tests.cpp ../buffer/buffer.hpp
+	$(CXX) $(CXXFLAGS) -c buffer_tests.cpp
+
+list_tests.o : list_tests.cpp ../list/list.hpp
+	$(CXX) $(CXXFLAGS) -c list_tests.cpp
+
+clean :
+	rm buffer.o buffer_tests.o list_tests.o buffer-tests list-tests
